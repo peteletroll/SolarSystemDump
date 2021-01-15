@@ -1,0 +1,31 @@
+{
+	"NAME": "SolarSystemDump",
+	"DOWNLOAD": "https://github.com/peteletroll/SolarSystemDump/releases",
+	"URL": "https://raw.githubusercontent.com/peteletroll/SolarSystemDump/master/Resources/SolarSystemDump.version",
+	"GITHUB": {
+		"USERNAME": "peteletroll",
+		"REPOSITORY": "SolarSystemDump"
+	},
+	"VERSION": {
+		"MAJOR": 1,
+		"MINOR": 11,
+		"PATCH": 0,
+		"BUILD": 1
+	},
+	"KSP_VERSION": {
+		"MAJOR": 1,
+		"MINOR": 11,
+		"PATCH": 0
+	},
+	"KSP_VERSION_MIN": {
+		"MAJOR": 1,
+		"MINOR": 11,
+		"PATCH": 0
+	},
+	"KSP_VERSION_MAX": {
+		"MAJOR": 1,
+		"MINOR": 11,
+		"PATCH": 99
+	}
+}
+
