@@ -118,9 +118,9 @@ namespace SolarSystemDump
 			info.Add("orbitingBodies", orbitingBodies);
 			if (body.orbitingBodies != null && body.orbitingBodies.Count > 0) {
 				int childrenCount = body.orbitingBodies.Count;
-				log(body.name + " has " + childrenCount + " children");
+				// log(body.name + " has " + childrenCount + " children");
 				for (int i = 0; i < childrenCount; i++) {
-					log("child " + i);
+					// log("child " + i);
 					if (body.orbitingBodies[i] != null)
 						orbitingBodies.Add(body.orbitingBodies[i].name);
 				}
