@@ -45,9 +45,9 @@ namespace SolarSystemDump
 				string file = Path.Combine(directory, nameof(SolarSystemDump) + ".json");
 				log("dumping to " + file);
 				stream = new StreamWriter(file);
-				string infoJson = Json.Serialize(systemInfo(), true, "  ");
-				log("dumping info: " + infoJson);
-				stream.Write(infoJson);
+				string json = Json.Serialize(systemJson(), true, "  ");
+				log("dumping: " + json);
+				stream.Write(json);
 				stream.Write('\n');
 			} catch (Exception e) {
 				log("can't save: " + e.Message + "\n" + e.StackTrace);
@@ -58,22 +58,22 @@ namespace SolarSystemDump
 			}
 		}
 
-		public static object systemInfo()
+		public static object systemJson()
 		{
-			Dictionary<string, object> ret = new Dictionary<string, object>();
-			ret.Add("version", Versioning.VersionString);
+			Dictionary<string, object> json = new Dictionary<string, object>();
+			json.Add("version", Versioning.VersionString);
 			CelestialBody rootBody = null;
-			object bodies = bodiesInfo(ref rootBody);
+			object bodies = bodiesJson(ref rootBody);
 			if (rootBody)
-				ret.Add("rootBody", rootBody.name);
-			ret.Add("bodies", bodies);
-			return ret;
+				json.Add("rootBody", rootBody.name);
+			json.Add("bodies", bodies);
+			return json;
 		}
 
-		public static object bodiesInfo(ref CelestialBody rootBody)
+		public static object bodiesJson(ref CelestialBody rootBody)
 		{
 			rootBody = null;
-			Dictionary<string, object> ret = new Dictionary<string, object>();
+			Dictionary<string, object> json = new Dictionary<string, object>();
 			if (FlightGlobals.Bodies != null) {
 				for (int i = 0; i < FlightGlobals.Bodies.Count; i++) {
 					CelestialBody body = FlightGlobals.Bodies[i];
@@ -81,41 +81,41 @@ namespace SolarSystemDump
 						continue;
 					if (body.orbit == null)
 						rootBody = body;
-					ret.Add(body.name, bodyInfo(body, i));
+					json.Add(body.name, bodyJson(body, i));
 				}
 			}
-			return ret;
+			return json;
 		}
 
-		public static Dictionary<string, object> bodyInfo(CelestialBody body, int index)
+		public static Dictionary<string, object> bodyJson(CelestialBody body, int index)
 		{
-			Dictionary<string, object> info = new Dictionary<string, object>();
+			Dictionary<string, object> json = new Dictionary<string, object>();
 			if (body == null)
-				return info;
+				return json;
 
-			info.Add("index", index);
-			info.Add("name", body.name);
-			info.Add("radius", body.Radius);
-			info.Add("mass", body.Mass);
-			info.Add("mu", body.gravParameter);
-			info.Add("g", G0 * body.GeeASL);
-			info.Add("isStar", body.isStar);
-			info.Add("isHomeWorld", body.isHomeWorld);
-			info.Add("hasSolidSurface", body.hasSolidSurface);
-			info.Add("atmosphereDepth", body.atmosphereDepth);
-			info.Add("siderealRotationPeriod", body.rotationPeriod);
-			info.Add("initialRotationRad", DEG2RAD * body.initialRotation);
-			info.Add("initialRotationDeg", body.initialRotation);
+			json.Add("index", index);
+			json.Add("name", body.name);
+			json.Add("radius", body.Radius);
+			json.Add("mass", body.Mass);
+			json.Add("mu", body.gravParameter);
+			json.Add("g", G0 * body.GeeASL);
+			json.Add("isStar", body.isStar);
+			json.Add("isHomeWorld", body.isHomeWorld);
+			json.Add("hasSolidSurface", body.hasSolidSurface);
+			json.Add("atmosphereDepth", body.atmosphereDepth);
+			json.Add("siderealRotationPeriod", body.rotationPeriod);
+			json.Add("initialRotationRad", DEG2RAD * body.initialRotation);
+			json.Add("initialRotationDeg", body.initialRotation);
 			if (body.scienceValues != null)
-				info.Add("spaceHighThreshold", body.scienceValues.spaceAltitudeThreshold);
+				json.Add("spaceHighThreshold", body.scienceValues.spaceAltitudeThreshold);
 			if (double.IsInfinity(body.sphereOfInfluence)) {
-				info.Add("sphereOfInfluence", null);
+				json.Add("sphereOfInfluence", null);
 			} else {
-				info.Add("sphereOfInfluence", body.sphereOfInfluence);
+				json.Add("sphereOfInfluence", body.sphereOfInfluence);
 			}
 
 			List<object> orbitingBodies = new List<object>();
-			info.Add("orbitingBodies", orbitingBodies);
+			json.Add("orbitingBodies", orbitingBodies);
 			if (body.orbitingBodies != null && body.orbitingBodies.Count > 0) {
 				int childrenCount = body.orbitingBodies.Count;
 				// log(body.name + " has " + childrenCount + " children");
@@ -126,29 +126,29 @@ namespace SolarSystemDump
 				}
 			}
 
-			info.Add("orbit", orbitInfo(body.orbit));
+			json.Add("orbit", orbitJson(body.orbit));
 
-			return info;
+			return json;
 		}
 
-		public static Dictionary<string, object> orbitInfo(Orbit orbit)
+		public static Dictionary<string, object> orbitJson(Orbit orbit)
 		{
 			if (orbit == null)
 				return null;
-			Dictionary<string, object> info = new Dictionary<string, object>();
-			info.Add("referenceBody", orbit.referenceBody != null ? orbit.referenceBody.name : null);
-			info.Add("semiMajorAxis", orbit.semiMajorAxis);
-			info.Add("semiLatusRectum", orbit.semiLatusRectum);
-			info.Add("eccentricity", orbit.eccentricity);
-			info.Add("inclinationRad", DEG2RAD * orbit.inclination);
-			info.Add("inclinationDeg", orbit.inclination);
-			info.Add("longitudeOfAscendingNodeRad", DEG2RAD * orbit.LAN);
-			info.Add("longitudeOfAscendingNodeDeg", orbit.LAN);
-			info.Add("argumentOfPeriapsisRad", DEG2RAD * orbit.argumentOfPeriapsis);
-			info.Add("argumentOfPeriapsisDeg", orbit.argumentOfPeriapsis);
-			info.Add("meanAnomalyAtEpochRad", orbit.meanAnomalyAtEpoch);
-			info.Add("meanAnomalyAtEpochDeg", RAD2DEG * orbit.meanAnomalyAtEpoch);
-			return info;
+			Dictionary<string, object> json = new Dictionary<string, object>();
+			json.Add("referenceBody", orbit.referenceBody != null ? orbit.referenceBody.name : null);
+			json.Add("semiMajorAxis", orbit.semiMajorAxis);
+			json.Add("semiLatusRectum", orbit.semiLatusRectum);
+			json.Add("eccentricity", orbit.eccentricity);
+			json.Add("inclinationRad", DEG2RAD * orbit.inclination);
+			json.Add("inclinationDeg", orbit.inclination);
+			json.Add("longitudeOfAscendingNodeRad", DEG2RAD * orbit.LAN);
+			json.Add("longitudeOfAscendingNodeDeg", orbit.LAN);
+			json.Add("argumentOfPeriapsisRad", DEG2RAD * orbit.argumentOfPeriapsis);
+			json.Add("argumentOfPeriapsisDeg", orbit.argumentOfPeriapsis);
+			json.Add("meanAnomalyAtEpochRad", orbit.meanAnomalyAtEpoch);
+			json.Add("meanAnomalyAtEpochDeg", RAD2DEG * orbit.meanAnomalyAtEpoch);
+			return json;
 		}
 
 		public static void log(string msg)
