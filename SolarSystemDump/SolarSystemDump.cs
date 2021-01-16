@@ -99,11 +99,15 @@ namespace SolarSystemDump
 			json.Add("mass", body.Mass);
 			json.Add("mu", body.gravParameter);
 			json.Add("g", G0 * body.GeeASL);
+			json.Add("hillSphere", body.hillSphere);
 			json.Add("isStar", body.isStar);
 			json.Add("isHomeWorld", body.isHomeWorld);
 			json.Add("hasSolidSurface", body.hasSolidSurface);
+			json.Add("ocean", body.ocean);
 			json.Add("atmosphereDepth", body.atmosphereDepth);
+			json.Add("atmosphereContainsOxygen", body.atmosphereContainsOxygen);
 			json.Add("siderealRotationPeriod", body.rotationPeriod);
+			json.Add("tidallyLocked", body.tidallyLocked);
 			json.Add("initialRotationRad", DEG2RAD * body.initialRotation);
 			json.Add("initialRotationDeg", body.initialRotation);
 			if (body.scienceValues != null)
@@ -137,6 +141,7 @@ namespace SolarSystemDump
 				return null;
 			Dictionary<string, object> json = new Dictionary<string, object>();
 			json.Add("referenceBody", orbit.referenceBody != null ? orbit.referenceBody.name : null);
+			json.Add("period", orbit.period);
 			json.Add("semiMajorAxis", orbit.semiMajorAxis);
 			json.Add("semiLatusRectum", orbit.semiLatusRectum);
 			json.Add("eccentricity", orbit.eccentricity);
