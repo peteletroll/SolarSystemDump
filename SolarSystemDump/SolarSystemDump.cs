@@ -48,6 +48,7 @@ namespace SolarSystemDump
 				string infoJson = Json.Serialize(systemInfo(), true, "  ");
 				log("dumping info: " + infoJson);
 				stream.Write(infoJson);
+				stream.Write('\n');
 			} catch (Exception e) {
 				log("can't save: " + e.Message + "\n" + e.StackTrace);
 			} finally {
@@ -60,11 +61,26 @@ namespace SolarSystemDump
 		public static object systemInfo()
 		{
 			Dictionary<string, object> ret = new Dictionary<string, object>();
+			ret.Add("version", Versioning.VersionString);
+			CelestialBody rootBody = null;
+			object bodies = bodiesInfo(ref rootBody);
+			if (rootBody)
+				ret.Add("rootBody", rootBody.name);
+			ret.Add("bodies", bodies);
+			return ret;
+		}
+
+		public static object bodiesInfo(ref CelestialBody rootBody)
+		{
+			rootBody = null;
+			Dictionary<string, object> ret = new Dictionary<string, object>();
 			if (FlightGlobals.Bodies != null) {
 				for (int i = 0; i < FlightGlobals.Bodies.Count; i++) {
 					CelestialBody body = FlightGlobals.Bodies[i];
 					if (body == null || body.name == null)
 						continue;
+					if (body.orbit == null)
+						rootBody = body;
 					ret.Add(body.name, bodyInfo(body, i));
 				}
 			}
@@ -122,6 +138,7 @@ namespace SolarSystemDump
 			Dictionary<string, object> info = new Dictionary<string, object>();
 			info.Add("referenceBody", orbit.referenceBody != null ? orbit.referenceBody.name : null);
 			info.Add("semiMajorAxis", orbit.semiMajorAxis);
+			info.Add("semiLatusRectum", orbit.semiLatusRectum);
 			info.Add("eccentricity", orbit.eccentricity);
 			info.Add("inclinationRad", DEG2RAD * orbit.inclination);
 			info.Add("inclinationDeg", orbit.inclination);
