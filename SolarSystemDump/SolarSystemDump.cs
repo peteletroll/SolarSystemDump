@@ -113,13 +113,9 @@ namespace SolarSystemDump
 			json.Add("tidallyLocked", body.tidallyLocked);
 			json.Add("initialRotationRad", DEG2RAD * body.initialRotation);
 			json.Add("initialRotationDeg", body.initialRotation);
-			if (body.scienceValues != null)
-				json.Add("spaceHighThreshold", body.scienceValues.spaceAltitudeThreshold);
-			if (double.IsInfinity(body.sphereOfInfluence)) {
-				json.Add("sphereOfInfluence", null);
-			} else {
-				json.Add("sphereOfInfluence", body.sphereOfInfluence);
-			}
+			json.Add("spaceHighThreshold",
+				body.scienceValues != null ? (object) body.scienceValues.spaceAltitudeThreshold : null);
+			json.Add("sphereOfInfluence", body.sphereOfInfluence);
 
 			List<object> orbitingBodies = new List<object>();
 			json.Add("orbitingBodies", orbitingBodies);
