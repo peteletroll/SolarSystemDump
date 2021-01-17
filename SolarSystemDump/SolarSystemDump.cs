@@ -106,7 +106,10 @@ namespace SolarSystemDump
 			json.Add("ocean", body.ocean);
 			json.Add("atmosphereDepth", body.atmosphereDepth);
 			json.Add("atmosphereContainsOxygen", body.atmosphereContainsOxygen);
-			json.Add("siderealRotationPeriod", body.rotationPeriod);
+			json.Add("solarDayLength", body.solarDayLength);
+			json.Add("rotationPeriod", body.rotationPeriod);
+			json.Add("solarRotationPeriod", body.solarRotationPeriod);
+			json.Add("rotates", body.rotates);
 			json.Add("tidallyLocked", body.tidallyLocked);
 			json.Add("initialRotationRad", DEG2RAD * body.initialRotation);
 			json.Add("initialRotationDeg", body.initialRotation);
