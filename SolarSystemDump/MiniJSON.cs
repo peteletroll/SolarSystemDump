@@ -9,6 +9,8 @@
  *
  * Modified by peteletroll (2021) to support pretty printing.
  *
+ * Modified by peteletroll (2021) to convert NaN and Infinity to null.
+ *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
  * "Software"), to deal in the Software without restriction, including
@@ -401,23 +403,23 @@ namespace MiniJSON {
         /// <param name="json">A Dictionary&lt;string, object&gt; / List&lt;object&gt;</param>
         /// <returns>A JSON encoded string, or null if object 'json' is not serializable</returns>
         public static string Serialize(object obj, bool pretty = false, string indentStep = "\t") {
-			return Serializer.Serialize(obj, pretty, indentStep);
+            return Serializer.Serialize(obj, pretty, indentStep);
         }
 
         sealed class Serializer {
-			bool pretty;
-			string indentStep;
+            bool pretty;
+            string indentStep;
 
-			StringBuilder builder;
+            StringBuilder builder;
 
             Serializer(bool pretty, string indentStep) {
-				this.pretty = pretty;
-				this.indentStep = indentStep;
+                this.pretty = pretty;
+                this.indentStep = indentStep;
                 builder = new StringBuilder();
             }
 
             public static string Serialize(object obj, bool pretty = false, string indentStep = "\t") {
-				var instance = new Serializer(pretty, indentStep);
+                var instance = new Serializer(pretty, indentStep);
 
                 instance.SerializeValue(obj, "");
 
@@ -425,13 +427,13 @@ namespace MiniJSON {
             }
 
             void newLine(string indent) {
-				if (pretty) {
-					builder.Append('\n');
-					builder.Append(indent);
-				}
-			}
+                if (pretty) {
+                    builder.Append('\n');
+                    builder.Append(indent);
+                }
+            }
 
-			void SerializeValue(object value, string indent) {
+            void SerializeValue(object value, string indent) {
                 IList asList;
                 IDictionary asDict;
                 string asStr;
@@ -453,35 +455,35 @@ namespace MiniJSON {
                 }
             }
 
-			void SerializeObject(IDictionary obj, string indent)
-			{
-				bool first = true;
+            void SerializeObject(IDictionary obj, string indent)
+            {
+                bool first = true;
 
-				string newIndent = pretty ? indent + indentStep : indent;
+                string newIndent = pretty ? indent + indentStep : indent;
 
-				builder.Append('{');
-				foreach (object e in obj.Keys) {
-					if (!first)
-						builder.Append(',');
-					newLine(newIndent);
+                builder.Append('{');
+                foreach (object e in obj.Keys) {
+                    if (!first)
+                        builder.Append(',');
+                    newLine(newIndent);
 
-					SerializeString(e.ToString());
-					builder.Append(':');
-					if (pretty)
-						builder.Append(' ');
+                    SerializeString(e.ToString());
+                    builder.Append(':');
+                    if (pretty)
+                        builder.Append(' ');
 
-					SerializeValue(obj[e], newIndent);
+                    SerializeValue(obj[e], newIndent);
 
-					first = false;
-				}
+                    first = false;
+                }
 
-				if (first) {
-					if (pretty)
-						builder.Append(' ');
-				} else {
-					newLine(indent);
-				}
-				builder.Append('}');
+                if (first) {
+                    if (pretty)
+                        builder.Append(' ');
+                } else {
+                    newLine(indent);
+                }
+                builder.Append('}');
             }
 
             void SerializeArray(IList anArray, string indent) {
@@ -489,24 +491,24 @@ namespace MiniJSON {
 
                 bool first = true;
 
-				string newIndent = pretty ? indent + indentStep : indent;
+                string newIndent = pretty ? indent + indentStep : indent;
 
                 foreach (object obj in anArray) {
-					if (!first)
+                    if (!first)
                         builder.Append(',');
-					newLine(newIndent);
+                    newLine(newIndent);
 
                     SerializeValue(obj, newIndent);
 
                     first = false;
                 }
 
-				if (first) {
-					if (pretty)
-						builder.Append(' ');
-				} else {
-					newLine(indent);
-				}
+                if (first) {
+                    if (pretty)
+                        builder.Append(' ');
+                } else {
+                    newLine(indent);
+                }
                 builder.Append(']');
             }
 
@@ -557,7 +559,7 @@ namespace MiniJSON {
                 // They always have, I'm just letting you know.
                 // Previously floats and doubles lost precision too.
                 if (value is float) {
-                    builder.Append(((float) value).ToString("R"));
+                    SerializeDouble((float) value);
                 } else if (value is int
                     || value is uint
                     || value is long
@@ -569,9 +571,17 @@ namespace MiniJSON {
                     builder.Append(value);
                 } else if (value is double
                     || value is decimal) {
-                    builder.Append(Convert.ToDouble(value).ToString("R"));
+                    SerializeDouble(Convert.ToDouble(value));
                 } else {
                     SerializeString(value.ToString());
+                }
+            }
+
+            void SerializeDouble(double value) {
+                if (Double.IsNaN(value) || Double.IsInfinity(value)) {
+					SerializeValue(null, "");
+				} else {
+                    builder.Append(value.ToString("R"));
                 }
             }
         }
