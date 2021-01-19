@@ -95,42 +95,53 @@ namespace SolarSystemDump
 
 			json.Add("index", index);
 			json.Add("name", body.name);
-			json.Add("radius", body.Radius);
-			json.Add("mass", body.Mass);
-			json.Add("mu", body.gravParameter);
-			json.Add("g", G0 * body.GeeASL);
-			json.Add("hillSphere", body.hillSphere);
+			json.Add("orbitingBodies", orbitingBodies(body));
 			json.Add("isStar", body.isStar);
 			json.Add("isHomeWorld", body.isHomeWorld);
 			json.Add("hasSolidSurface", body.hasSolidSurface);
 			json.Add("ocean", body.ocean);
-			json.Add("atmosphereDepth", body.atmosphereDepth);
+			json.Add("atmosphere", body.atmosphere);
 			json.Add("atmosphereContainsOxygen", body.atmosphereContainsOxygen);
-			json.Add("solarDayLength", body.solarDayLength);
-			json.Add("rotationPeriod", body.rotationPeriod);
-			json.Add("solarRotationPeriod", body.solarRotationPeriod);
-			json.Add("rotates", body.rotates);
-			json.Add("tidallyLocked", body.tidallyLocked);
-			json.Add("initialRotationRad", DEG2RAD * body.initialRotation);
-			json.Add("initialRotationDeg", body.initialRotation);
-			json.Add("spaceHighThreshold",
-				body.scienceValues != null ? (object) body.scienceValues.spaceAltitudeThreshold : null);
-			json.Add("sphereOfInfluence", body.sphereOfInfluence);
 
-			List<object> orbitingBodies = new List<object>();
-			json.Add("orbitingBodies", orbitingBodies);
+			Dictionary<string, object> size = new Dictionary<string, object>();
+			json.Add("size", size);
+			size.Add("radius", body.Radius);
+			size.Add("mass", body.Mass);
+			size.Add("mu", body.gravParameter);
+			size.Add("g0", G0 * body.GeeASL);
+			size.Add("atmosphereDepth", body.atmosphereDepth);
+			size.Add("spaceHighThreshold",
+				body.scienceValues != null ? (object) body.scienceValues.spaceAltitudeThreshold : null);
+			size.Add("sphereOfInfluence", body.sphereOfInfluence);
+			size.Add("hillSphere", body.hillSphere);
+
+			Dictionary<string, object> rotation = new Dictionary<string, object>();
+			json.Add("rotation", rotation);
+			rotation.Add("solarDayLength", body.solarDayLength);
+			rotation.Add("rotationPeriod", body.rotationPeriod);
+			rotation.Add("solarRotationPeriod", body.solarRotationPeriod);
+			rotation.Add("rotates", body.rotates);
+			rotation.Add("tidallyLocked", body.tidallyLocked);
+			rotation.Add("initialRotationRad", DEG2RAD * body.initialRotation);
+			rotation.Add("initialRotationDeg", body.initialRotation);
+
+			json.Add("orbit", orbitJson(body.orbit));
+
+			return json;
+		}
+
+		public static List<object> orbitingBodies(CelestialBody body)
+		{
+			List<object> json = new List<object>();
 			if (body.orbitingBodies != null && body.orbitingBodies.Count > 0) {
 				int childrenCount = body.orbitingBodies.Count;
 				// log(body.name + " has " + childrenCount + " children");
 				for (int i = 0; i < childrenCount; i++) {
 					// log("child " + i);
 					if (body.orbitingBodies[i] != null)
-						orbitingBodies.Add(body.orbitingBodies[i].name);
+						json.Add(body.orbitingBodies[i].name);
 				}
 			}
-
-			json.Add("orbit", orbitJson(body.orbit));
-
 			return json;
 		}
 
