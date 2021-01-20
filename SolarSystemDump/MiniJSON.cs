@@ -579,8 +579,8 @@ namespace MiniJSON {
 
             void SerializeDouble(double value) {
                 if (Double.IsNaN(value) || Double.IsInfinity(value)) {
-					SerializeValue(null, "");
-				} else {
+                    SerializeValue(null, "");
+                } else {
                     builder.Append(value.ToString("R"));
                 }
             }
