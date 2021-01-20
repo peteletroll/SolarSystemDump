@@ -121,6 +121,7 @@ namespace SolarSystemDump
 
 			JsonObject rotation = new JsonObject();
 			json.Add("rotation", rotation);
+			rotation.Add("axis", vectorJson(body.RotationAxis));
 			rotation.Add("solarDayLength", body.solarDayLength);
 			rotation.Add("rotationPeriod", body.rotationPeriod);
 			rotation.Add("solarRotationPeriod", body.solarRotationPeriod);
@@ -168,6 +169,15 @@ namespace SolarSystemDump
 			json.Add("meanAnomalyAtEpochRad", orbit.meanAnomalyAtEpoch);
 			json.Add("meanAnomalyAtEpochDeg", RAD2DEG * orbit.meanAnomalyAtEpoch);
 			return json;
+		}
+
+		public static JsonArray vectorJson(Vector3d v)
+		{
+			JsonArray ret = new JsonArray();
+			ret.Add(v.x);
+			ret.Add(v.y);
+			ret.Add(v.z);
+			return ret;
 		}
 
 		public static void log(string msg)
