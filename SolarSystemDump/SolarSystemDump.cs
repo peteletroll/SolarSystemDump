@@ -32,6 +32,10 @@ namespace SolarSystemDump
 
 		static bool dumpedJson = false;
 
+		public class JsonArray: List<object> { }
+
+		public class JsonObject: Dictionary<string, object> { }
+
 		public void dumpJson()
 		{
 			if (dumpedJson)
@@ -58,9 +62,9 @@ namespace SolarSystemDump
 			}
 		}
 
-		public static object systemJson()
+		public static JsonObject systemJson()
 		{
-			Dictionary<string, object> json = new Dictionary<string, object>();
+			JsonObject json = new JsonObject();
 			json.Add("version", Versioning.VersionString);
 			CelestialBody rootBody = null;
 			object bodies = bodiesJson(ref rootBody);
@@ -70,10 +74,10 @@ namespace SolarSystemDump
 			return json;
 		}
 
-		public static object bodiesJson(ref CelestialBody rootBody)
+		public static JsonObject bodiesJson(ref CelestialBody rootBody)
 		{
 			rootBody = null;
-			Dictionary<string, object> json = new Dictionary<string, object>();
+			JsonObject json = new JsonObject();
 			if (FlightGlobals.Bodies != null) {
 				for (int i = 0; i < FlightGlobals.Bodies.Count; i++) {
 					CelestialBody body = FlightGlobals.Bodies[i];
@@ -87,9 +91,9 @@ namespace SolarSystemDump
 			return json;
 		}
 
-		public static Dictionary<string, object> bodyJson(CelestialBody body, int index)
+		public static JsonObject bodyJson(CelestialBody body, int index)
 		{
-			Dictionary<string, object> json = new Dictionary<string, object>();
+			JsonObject json = new JsonObject();
 			if (body == null)
 				return json;
 
@@ -103,7 +107,7 @@ namespace SolarSystemDump
 			json.Add("atmosphere", body.atmosphere);
 			json.Add("atmosphereContainsOxygen", body.atmosphereContainsOxygen);
 
-			Dictionary<string, object> size = new Dictionary<string, object>();
+			JsonObject size = new JsonObject();
 			json.Add("size", size);
 			size.Add("radius", body.Radius);
 			size.Add("mass", body.Mass);
@@ -115,7 +119,7 @@ namespace SolarSystemDump
 			size.Add("sphereOfInfluence", body.sphereOfInfluence);
 			size.Add("hillSphere", body.hillSphere);
 
-			Dictionary<string, object> rotation = new Dictionary<string, object>();
+			JsonObject rotation = new JsonObject();
 			json.Add("rotation", rotation);
 			rotation.Add("solarDayLength", body.solarDayLength);
 			rotation.Add("rotationPeriod", body.rotationPeriod);
@@ -130,9 +134,9 @@ namespace SolarSystemDump
 			return json;
 		}
 
-		public static List<object> orbitingBodies(CelestialBody body)
+		public static JsonArray orbitingBodies(CelestialBody body)
 		{
-			List<object> json = new List<object>();
+			JsonArray json = new JsonArray();
 			if (body.orbitingBodies != null && body.orbitingBodies.Count > 0) {
 				int childrenCount = body.orbitingBodies.Count;
 				// log(body.name + " has " + childrenCount + " children");
@@ -145,11 +149,11 @@ namespace SolarSystemDump
 			return json;
 		}
 
-		public static Dictionary<string, object> orbitJson(Orbit orbit)
+		public static JsonObject orbitJson(Orbit orbit)
 		{
 			if (orbit == null)
 				return null;
-			Dictionary<string, object> json = new Dictionary<string, object>();
+			JsonObject json = new JsonObject();
 			json.Add("referenceBody", orbit.referenceBody != null ? orbit.referenceBody.name : null);
 			json.Add("period", orbit.period);
 			json.Add("semiMajorAxis", orbit.semiMajorAxis);
