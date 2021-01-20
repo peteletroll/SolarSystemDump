@@ -291,10 +291,12 @@ namespace MiniJSON {
                 return s.ToString();
             }
 
+            static char[] notInteger = new char[] { '.', 'e', 'E' };
+
             object ParseNumber() {
                 string number = NextWord;
 
-                if (number.IndexOf('.') == -1) {
+                if (number.IndexOfAny(notInteger) == -1) {
                     long parsedInt;
                     Int64.TryParse(number, out parsedInt);
                     return parsedInt;
