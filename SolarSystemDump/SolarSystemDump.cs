@@ -67,7 +67,7 @@ namespace SolarSystemDump
 			JsonObject json = new JsonObject();
 			json.Add("version", Versioning.VersionString);
 			CelestialBody rootBody = null;
-			object bodies = bodiesJson(ref rootBody);
+			JsonObject bodies = bodiesJson(ref rootBody);
 			if (rootBody)
 				json.Add("rootBody", rootBody.name);
 			json.Add("bodies", bodies);
