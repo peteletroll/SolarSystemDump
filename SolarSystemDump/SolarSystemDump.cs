@@ -106,6 +106,8 @@ namespace SolarSystemDump
 			json.Add("ocean", body.ocean);
 			json.Add("atmosphere", body.atmosphere);
 			json.Add("atmosphereContainsOxygen", body.atmosphereContainsOxygen);
+			json.Add("albedo", body.albedo);
+			json.Add("emissivity", body.emissivity);
 
 			JsonObject size = new JsonObject();
 			json.Add("size", size);
