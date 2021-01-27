@@ -44,12 +44,12 @@ namespace SolarSystemDump
 			StreamWriter stream = null;
 
 			try {
+				string json = Json.Serialize(systemJson(), true, "  ");
 				string assembly = Assembly.GetExecutingAssembly().Location;
 				string directory = Path.GetDirectoryName(assembly);
 				string file = Path.Combine(directory, nameof(SolarSystemDump) + ".json");
 				log("dumping to " + file);
 				stream = new StreamWriter(file);
-				string json = Json.Serialize(systemJson(), true, "  ");
 				log("dumping: " + json);
 				stream.Write(json);
 				stream.Write('\n');
@@ -108,6 +108,7 @@ namespace SolarSystemDump
 			json.Add("atmosphereContainsOxygen", body.atmosphereContainsOxygen);
 			json.Add("albedo", body.albedo);
 			json.Add("emissivity", body.emissivity);
+			json.Add("timeWarpAltitudeLimits", vectorJson(body.timeWarpAltitudeLimits));
 
 			JsonObject size = new JsonObject();
 			json.Add("size", size);
@@ -179,6 +180,14 @@ namespace SolarSystemDump
 			ret.Add(v.x);
 			ret.Add(v.y);
 			ret.Add(v.z);
+			return ret;
+		}
+
+		public static JsonArray vectorJson(float[] v)
+		{
+			JsonArray ret = new JsonArray();
+			for (int i = 0; i < v.Length; i++)
+				ret.Add(v[i]);
 			return ret;
 		}
 
