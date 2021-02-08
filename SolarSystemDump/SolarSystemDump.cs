@@ -115,6 +115,7 @@ namespace SolarSystemDump
 			size.Add("radius", body.Radius);
 			size.Add("mass", body.Mass);
 			size.Add("mu", body.gravParameter);
+			size.Add("GeeASL", body.GeeASL);
 			size.Add("g0", G0 * body.GeeASL);
 			size.Add("atmosphereDepth", body.atmosphereDepth);
 			size.Add("spaceHighThreshold",
