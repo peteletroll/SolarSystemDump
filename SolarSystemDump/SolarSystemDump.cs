@@ -66,11 +66,25 @@ namespace SolarSystemDump
 		{
 			JsonObject json = new JsonObject();
 			json.Add("version", Versioning.VersionString);
+			json.Add("timeUnits", timeUnitsJson());
 			CelestialBody rootBody = null;
 			JsonObject bodies = bodiesJson(ref rootBody);
 			if (rootBody)
 				json.Add("rootBody", rootBody.name);
 			json.Add("bodies", bodies);
+			return json;
+		}
+
+		public static JsonObject timeUnitsJson()
+		{
+			IDateTimeFormatter dtf = KSPUtil.dateTimeFormatter;
+			if (dtf == null)
+				return null;
+			JsonObject json = new JsonObject();
+			json.Add("Year", dtf.Year);
+			json.Add("Day", dtf.Day);
+			json.Add("Hour", dtf.Hour);
+			json.Add("Minute", dtf.Minute);
 			return json;
 		}
 
