@@ -124,6 +124,9 @@ namespace SolarSystemDump
 			json.Add("emissivity", body.emissivity);
 			json.Add("timeWarpAltitudeLimits", vectorJson(body.timeWarpAltitudeLimits));
 
+			json.Add("biomes", biomes(body));
+			json.Add("miniBiomes", miniBiomes(body));
+
 			JsonObject size = new JsonObject();
 			json.Add("size", size);
 			size.Add("radius", body.Radius);
@@ -150,6 +153,24 @@ namespace SolarSystemDump
 
 			json.Add("orbit", orbitJson(body.orbit));
 
+			return json;
+		}
+
+		public static JsonArray biomes(CelestialBody body)
+		{
+			JsonArray json = new JsonArray();
+			List<string> b = ResearchAndDevelopment.GetBiomeTags(body, false);
+			for (int i = 0; i < b.Count; i++)
+				json.Add(b[i]);
+			return json;
+		}
+
+		public static JsonArray miniBiomes(CelestialBody body)
+		{
+			JsonArray json = new JsonArray();
+			List<string> b = ResearchAndDevelopment.GetMiniBiomeTags(body);
+			for (int i = 0; i < b.Count; i++)
+				json.Add(b[i]);
 			return json;
 		}
 
