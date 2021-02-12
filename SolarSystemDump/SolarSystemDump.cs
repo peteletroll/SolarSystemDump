@@ -122,10 +122,10 @@ namespace SolarSystemDump
 			json.Add("atmosphereContainsOxygen", body.atmosphereContainsOxygen);
 			json.Add("albedo", body.albedo);
 			json.Add("emissivity", body.emissivity);
-			json.Add("timeWarpAltitudeLimits", vectorJson(body.timeWarpAltitudeLimits));
+			json.Add("timeWarpAltitudeLimits", toJson(body.timeWarpAltitudeLimits));
 
-			json.Add("biomes", biomes(body));
-			json.Add("miniBiomes", miniBiomes(body));
+			json.Add("biomes", toJson(ResearchAndDevelopment.GetBiomeTags(body, false)));
+			json.Add("miniBiomes", toJson(ResearchAndDevelopment.GetMiniBiomeTags(body)));
 
 			JsonObject size = new JsonObject();
 			json.Add("size", size);
@@ -142,7 +142,7 @@ namespace SolarSystemDump
 
 			JsonObject rotation = new JsonObject();
 			json.Add("rotation", rotation);
-			rotation.Add("axis", vectorJson(body.RotationAxis));
+			rotation.Add("axis", toJson(body.RotationAxis));
 			rotation.Add("solarDayLength", body.solarDayLength);
 			rotation.Add("rotationPeriod", body.rotationPeriod);
 			rotation.Add("solarRotationPeriod", body.solarRotationPeriod);
@@ -153,24 +153,6 @@ namespace SolarSystemDump
 
 			json.Add("orbit", orbitJson(body.orbit));
 
-			return json;
-		}
-
-		public static JsonArray biomes(CelestialBody body)
-		{
-			JsonArray json = new JsonArray();
-			List<string> b = ResearchAndDevelopment.GetBiomeTags(body, false);
-			for (int i = 0; i < b.Count; i++)
-				json.Add(b[i]);
-			return json;
-		}
-
-		public static JsonArray miniBiomes(CelestialBody body)
-		{
-			JsonArray json = new JsonArray();
-			List<string> b = ResearchAndDevelopment.GetMiniBiomeTags(body);
-			for (int i = 0; i < b.Count; i++)
-				json.Add(b[i]);
 			return json;
 		}
 
@@ -210,7 +192,7 @@ namespace SolarSystemDump
 			return json;
 		}
 
-		public static JsonArray vectorJson(Vector3d v)
+		public static JsonArray toJson(Vector3d v)
 		{
 			JsonArray ret = new JsonArray();
 			ret.Add(v.x);
@@ -219,11 +201,21 @@ namespace SolarSystemDump
 			return ret;
 		}
 
-		public static JsonArray vectorJson(float[] v)
+		public static JsonArray toJson(float[] v)
 		{
 			JsonArray ret = new JsonArray();
 			for (int i = 0; i < v.Length; i++)
 				ret.Add(v[i]);
+			return ret;
+		}
+
+		public static JsonArray toJson(List<string> l)
+		{
+			if (l == null)
+				return null;
+			JsonArray ret = new JsonArray();
+			for (int i = 0; i < l.Count; i++)
+				ret.Add(l[i]);
 			return ret;
 		}
 
