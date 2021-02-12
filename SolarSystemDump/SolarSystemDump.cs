@@ -50,7 +50,7 @@ namespace SolarSystemDump
 				string file = Path.Combine(directory, nameof(SolarSystemDump) + ".json");
 				log("dumping to " + file);
 				stream = new StreamWriter(file);
-				log("dumping: " + json);
+				// log("dumping: " + json);
 				stream.Write(json);
 				stream.Write('\n');
 			} catch (Exception e) {
