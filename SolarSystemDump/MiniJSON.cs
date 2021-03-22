@@ -121,7 +121,7 @@ namespace MiniJSON {
             }
 
             public static object Parse(string jsonString) {
-                using (var instance = new Parser(jsonString)) {
+                using (Parser instance = new Parser(jsonString)) {
                     return instance.ParseValue();
                 }
             }
@@ -174,7 +174,7 @@ namespace MiniJSON {
                 json.Read();
 
                 // [
-                var parsing = true;
+                bool parsing = true;
                 while (parsing) {
                     TOKEN nextToken = NextToken;
 
@@ -272,7 +272,7 @@ namespace MiniJSON {
                             s.Append('\t');
                             break;
                         case 'u':
-                            var hex = new char[4];
+                            char[] hex = new char[4];
 
                             for (int i=0; i< 4; i++) {
                                 hex[i] = NextChar;
@@ -421,7 +421,7 @@ namespace MiniJSON {
             }
 
             public static string Serialize(object obj, bool pretty = false, string indentStep = "\t") {
-                var instance = new Serializer(pretty, indentStep);
+                Serializer instance = new Serializer(pretty, indentStep);
 
                 instance.SerializeValue(obj, "");
 
@@ -518,7 +518,7 @@ namespace MiniJSON {
                 builder.Append('\"');
 
                 char[] charArray = str.ToCharArray();
-                foreach (var c in charArray) {
+                foreach (char c in charArray) {
                     switch (c) {
                     case '"':
                         builder.Append("\\\"");
