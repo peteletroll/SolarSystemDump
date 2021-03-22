@@ -124,9 +124,6 @@ namespace SolarSystemDump
 			json.Add("emissivity", body.emissivity);
 			json.Add("timeWarpAltitudeLimits", toJson(body.timeWarpAltitudeLimits));
 
-			json.Add("biomes", toJson(ResearchAndDevelopment.GetBiomeTags(body, false)));
-			json.Add("miniBiomes", toJson(ResearchAndDevelopment.GetMiniBiomeTags(body)));
-
 			JsonObject size = new JsonObject();
 			json.Add("size", size);
 			size.Add("radius", body.Radius);
@@ -135,10 +132,9 @@ namespace SolarSystemDump
 			size.Add("GeeASL", body.GeeASL);
 			size.Add("g0", G0 * body.GeeASL);
 			size.Add("atmosphereDepth", body.atmosphereDepth);
-			size.Add("spaceHighThreshold",
-				body.scienceValues != null ? (object) body.scienceValues.spaceAltitudeThreshold : null);
 			size.Add("sphereOfInfluence", body.sphereOfInfluence);
 			size.Add("hillSphere", body.hillSphere);
+			size.Add("oceanDensity", body.oceanDensity);
 
 			JsonObject rotation = new JsonObject();
 			json.Add("rotation", rotation);
@@ -152,6 +148,15 @@ namespace SolarSystemDump
 			rotation.Add("initialRotationDeg", body.initialRotation);
 
 			json.Add("orbit", orbitJson(body.orbit));
+
+			JsonObject science = new JsonObject();
+			json.Add("science", science);
+			science.Add("flyingHighThreshold",
+				body.scienceValues != null ? (object) body.scienceValues.flyingAltitudeThreshold : null);
+			science.Add("spaceHighThreshold",
+				body.scienceValues != null ? (object) body.scienceValues.spaceAltitudeThreshold : null);
+			science.Add("biomes", toJson(ResearchAndDevelopment.GetBiomeTags(body, false)));
+			science.Add("miniBiomes", toJson(ResearchAndDevelopment.GetMiniBiomeTags(body)));
 
 			return json;
 		}
