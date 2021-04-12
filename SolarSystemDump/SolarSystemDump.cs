@@ -113,7 +113,6 @@ namespace SolarSystemDump
 
 			json.Add("index", index);
 			json.Add("name", body.name);
-			json.Add("orbitingBodies", orbitingBodies(body));
 			json.Add("isStar", body.isStar);
 			json.Add("isHomeWorld", body.isHomeWorld);
 			json.Add("hasSolidSurface", body.hasSolidSurface);
@@ -147,7 +146,7 @@ namespace SolarSystemDump
 			rotation.Add("initialRotationRad", DEG2RAD * body.initialRotation);
 			rotation.Add("initialRotationDeg", body.initialRotation);
 
-			json.Add("orbit", orbitJson(body.orbit));
+			json.Add("orbit", orbitJson(body));
 
 			JsonObject science = new JsonObject();
 			json.Add("science", science);
@@ -176,12 +175,14 @@ namespace SolarSystemDump
 			return json;
 		}
 
-		public static JsonObject orbitJson(Orbit orbit)
+		public static JsonObject orbitJson(CelestialBody body)
 		{
-			if (orbit == null)
+			if (body == null || body.orbit == null)
 				return null;
+			Orbit orbit = body.orbit;
 			JsonObject json = new JsonObject();
 			json.Add("referenceBody", orbit.referenceBody != null ? orbit.referenceBody.name : null);
+			json.Add("orbitingBodies", orbitingBodies(body));
 			json.Add("period", orbit.period);
 			json.Add("semiMajorAxis", orbit.semiMajorAxis);
 			json.Add("semiLatusRectum", orbit.semiLatusRectum);
@@ -194,6 +195,7 @@ namespace SolarSystemDump
 			json.Add("argumentOfPeriapsisDeg", orbit.argumentOfPeriapsis);
 			json.Add("meanAnomalyAtEpochRad", orbit.meanAnomalyAtEpoch);
 			json.Add("meanAnomalyAtEpochDeg", RAD2DEG * orbit.meanAnomalyAtEpoch);
+			json.Add("normal", orbit.GetOrbitNormal());
 			return json;
 		}
 
