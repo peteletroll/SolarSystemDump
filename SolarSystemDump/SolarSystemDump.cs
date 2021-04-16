@@ -122,10 +122,12 @@ namespace SolarSystemDump
 			json.Add("albedo", body.albedo);
 			json.Add("emissivity", body.emissivity);
 			json.Add("timeWarpAltitudeLimits", toJson(body.timeWarpAltitudeLimits));
+			json.Add("orbitingBodies", orbitingBodies(body));
 
 			JsonObject size = new JsonObject();
 			json.Add("size", size);
 			size.Add("radius", body.Radius);
+			size.Add("maxHeight", body.pqsController ? body.pqsController.mapMaxHeight : 0.0);
 			size.Add("mass", body.Mass);
 			size.Add("mu", body.gravParameter);
 			size.Add("GeeASL", body.GeeASL);
@@ -182,7 +184,6 @@ namespace SolarSystemDump
 			Orbit orbit = body.orbit;
 			JsonObject json = new JsonObject();
 			json.Add("referenceBody", orbit.referenceBody != null ? orbit.referenceBody.name : null);
-			json.Add("orbitingBodies", orbitingBodies(body));
 			json.Add("period", orbit.period);
 			json.Add("semiMajorAxis", orbit.semiMajorAxis);
 			json.Add("semiLatusRectum", orbit.semiLatusRectum);
