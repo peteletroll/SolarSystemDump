@@ -152,10 +152,19 @@ namespace SolarSystemDump
 
 			JsonObject science = new JsonObject();
 			json.Add("science", science);
-			science.Add("flyingHighThreshold",
-				body.scienceValues != null ? (object) body.scienceValues.flyingAltitudeThreshold : null);
-			science.Add("spaceHighThreshold",
-				body.scienceValues != null ? (object) body.scienceValues.spaceAltitudeThreshold : null);
+			if (body.scienceValues != null) {
+				CelestialBodyScienceParams sv = body.scienceValues;
+				science.Add("flyingAltitudeThreshold", sv.flyingAltitudeThreshold);
+				science.Add("spaceAltitudeThreshold", sv.spaceAltitudeThreshold);
+
+				science.Add("InSpaceHighDataValue", sv.InSpaceHighDataValue);
+				science.Add("InSpaceLowDataValue", sv.InSpaceLowDataValue);
+				science.Add("FlyingLowDataValue", sv.FlyingLowDataValue);
+				science.Add("FlyingHighDataValue", sv.FlyingHighDataValue);
+				science.Add("LandedDataValue", sv.LandedDataValue);
+				science.Add("SplashedDataValue", sv.SplashedDataValue);
+				science.Add("RecoveryValue", sv.RecoveryValue);
+			}
 			science.Add("biomes", toJson(ResearchAndDevelopment.GetBiomeTags(body, false)));
 			science.Add("miniBiomes", toJson(ResearchAndDevelopment.GetMiniBiomeTags(body)));
 
