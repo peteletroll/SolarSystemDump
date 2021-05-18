@@ -111,18 +111,14 @@ namespace SolarSystemDump
 			if (body == null)
 				return json;
 
-			json.Add("index", index);
-			json.Add("name", body.name);
-			json.Add("isStar", body.isStar);
-			json.Add("isHomeWorld", body.isHomeWorld);
-			json.Add("hasSolidSurface", body.hasSolidSurface);
-			json.Add("ocean", body.ocean);
-			json.Add("atmosphere", body.atmosphere);
-			json.Add("atmosphereContainsOxygen", body.atmosphereContainsOxygen);
-			json.Add("albedo", body.albedo);
-			json.Add("emissivity", body.emissivity);
-			json.Add("timeWarpAltitudeLimits", toJson(body.timeWarpAltitudeLimits));
-			json.Add("orbitingBodies", orbitingBodies(body));
+			JsonObject info = new JsonObject();
+			json.Add("info", info);
+			info.Add("index", index);
+			info.Add("name", body.name);
+			info.Add("isStar", body.isStar);
+			info.Add("isHomeWorld", body.isHomeWorld);
+			info.Add("timeWarpAltitudeLimits", toJson(body.timeWarpAltitudeLimits));
+			info.Add("orbitingBodies", orbitingBodies(body));
 
 			JsonObject size = new JsonObject();
 			json.Add("size", size);
@@ -132,10 +128,23 @@ namespace SolarSystemDump
 			size.Add("mu", body.gravParameter);
 			size.Add("GeeASL", body.GeeASL);
 			size.Add("g0", G0 * body.GeeASL);
-			size.Add("atmosphereDepth", body.atmosphereDepth);
 			size.Add("sphereOfInfluence", body.sphereOfInfluence);
 			size.Add("hillSphere", body.hillSphere);
 			size.Add("oceanDensity", body.oceanDensity);
+
+			JsonObject surface = new JsonObject();
+			json.Add("surface", surface);
+			surface.Add("hasSolidSurface", body.hasSolidSurface);
+			surface.Add("ocean", body.ocean);
+			surface.Add("albedo", body.albedo);
+			surface.Add("emissivity", body.emissivity);
+
+			if (body.atmosphere) {
+				JsonObject atmosphere = new JsonObject();
+				json.Add("atmosphere", atmosphere);
+				atmosphere.Add("atmosphereDepth", body.atmosphereDepth);
+				atmosphere.Add("atmosphereContainsOxygen", body.atmosphereContainsOxygen);
+			}
 
 			JsonObject rotation = new JsonObject();
 			json.Add("rotation", rotation);
