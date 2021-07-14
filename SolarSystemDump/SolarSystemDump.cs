@@ -177,6 +177,23 @@ namespace SolarSystemDump
 			science.Add("biomes", toJson(ResearchAndDevelopment.GetBiomeTags(body, false)));
 			science.Add("miniBiomes", toJson(ResearchAndDevelopment.GetMiniBiomeTags(body)));
 
+			JsonArray anomalies = new JsonArray();
+			PQSSurfaceObject[] aa = body.pqsSurfaceObjects;
+			if (aa != null) {
+				for (int i = 0; i < aa.Length; i++) {
+					PQSSurfaceObject a = aa[i];
+					if (a != null && a.name != "Randolith") {
+						JsonObject j = new JsonObject();
+						j.Add("name", a.name);
+						Vector3d p = a.PlanetRelativePosition;
+						j.Add("lat", Mathf.Rad2Deg * Mathf.Asin((float) p.normalized.y));
+						j.Add("lon", Mathf.Rad2Deg * Math.Atan2(p.z, p.x));
+						anomalies.Add(j);
+					}
+				}
+			}
+			json.Add("anomalies", anomalies);
+
 			return json;
 		}
 
@@ -220,6 +237,8 @@ namespace SolarSystemDump
 
 		public static JsonArray toJson(Vector3d v)
 		{
+			if (v == null)
+				return null;
 			JsonArray ret = new JsonArray();
 			ret.Add(v.x);
 			ret.Add(v.y);
