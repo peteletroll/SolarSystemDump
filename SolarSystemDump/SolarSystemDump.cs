@@ -23,6 +23,7 @@ namespace SolarSystemDump
 		{
 			log("Start() called in " + HighLogic.LoadedScene);
 			dumpJson();
+			enabled = false;
 		}
 
 		public void OnDestroy()
@@ -68,10 +69,12 @@ namespace SolarSystemDump
 			json.Add("version", Versioning.VersionString);
 			json.Add("timeUnits", timeUnitsJson());
 			CelestialBody rootBody = null;
+
 			JsonObject bodies = bodiesJson(ref rootBody);
 			if (rootBody)
 				json.Add("rootBody", rootBody.name);
 			json.Add("bodies", bodies);
+
 			return json;
 		}
 
@@ -194,6 +197,10 @@ namespace SolarSystemDump
 			}
 			json.Add("anomalies", anomalies);
 
+			JsonObject roc = rocJson(body.name);
+			if (roc != null)
+				json.Add("roc", roc);
+
 			return json;
 		}
 
@@ -233,6 +240,32 @@ namespace SolarSystemDump
 			json.Add("meanAnomalyAtEpochDeg", RAD2DEG * orbit.meanAnomalyAtEpoch);
 			json.Add("normal", toJson(orbit.GetOrbitNormal()));
 			return json;
+		}
+
+		public static JsonObject rocJson(string body)
+		{
+			List<ROCDefinition> roc = ROCManager.Instance?.rocDefinitions;
+			if (roc == null)
+				return null;
+
+			JsonObject ret = new JsonObject();
+			roc.ForEach(r => {
+				// log("ROC TYPE " + r.type);
+				string rocname = r.type;
+				if (r.myCelestialBodies != null) {
+					// log("ROC BODIES " + r.myCelestialBodies.Count);
+					r.myCelestialBodies.ForEach(d => {
+						// log("ROC BODY " + d.name + " ON " + body);
+						if (d.name == body && d.biomes != null) {
+							JsonArray biomes = new JsonArray();
+							d.biomes.ForEach(b => biomes.Add(b.Replace(" ", "")));
+							ret.Add(rocname, biomes);
+						}
+					});
+				}
+			});
+
+			return ret;
 		}
 
 		public static JsonArray toJson(Vector3d v)
