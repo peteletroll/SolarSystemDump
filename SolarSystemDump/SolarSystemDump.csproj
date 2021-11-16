@@ -36,9 +36,6 @@
       <HintPath>..\..\..\KSP\KSP_linux\KSP_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="UnityEngine.JSONSerializeModule">
-      <HintPath>..\..\..\KSP\KSP_linux\KSP_Data\Managed\UnityEngine.JSONSerializeModule.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="SolarSystemDump.cs" />
