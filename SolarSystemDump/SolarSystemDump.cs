@@ -54,10 +54,10 @@ namespace SolarSystemDump
 				// log("dumping: " + json);
 				stream.Write(json);
 				stream.Write('\n');
+				dumpedJson = true;
 			} catch (Exception e) {
 				log("can't save: " + e.Message + "\n" + e.StackTrace);
 			} finally {
-				dumpedJson = true;
 				if (stream != null)
 					stream.Close();
 			}
@@ -188,6 +188,7 @@ namespace SolarSystemDump
 					if (a != null && a.name != "Randolith") {
 						JsonObject j = new JsonObject();
 						j.Add("name", a.name);
+						j.Add("objectName", a.SurfaceObjectName);
 						Vector3d p = a.PlanetRelativePosition;
 						j.Add("lat", Mathf.Rad2Deg * Mathf.Asin((float) p.normalized.y));
 						j.Add("lon", Mathf.Rad2Deg * Math.Atan2(p.z, p.x));
