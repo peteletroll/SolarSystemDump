@@ -12,7 +12,6 @@ namespace SolarSystemDump
 	{
 		const double DEG2RAD = Math.PI / 180.0;
 		const double RAD2DEG = 180.0 / Math.PI;
-		const double G0 = 9.81;
 
 		public void Awake()
 		{
@@ -68,6 +67,7 @@ namespace SolarSystemDump
 			JsonObject json = new JsonObject();
 			json.Add("version", Versioning.VersionString);
 			json.Add("timeUnits", timeUnitsJson());
+			json.Add("g0", PhysicsGlobals.GravitationalAcceleration);
 			CelestialBody rootBody = null;
 
 			JsonObject bodies = bodiesJson(ref rootBody);
@@ -130,7 +130,7 @@ namespace SolarSystemDump
 			size.Add("mass", body.Mass);
 			size.Add("mu", body.gravParameter);
 			size.Add("GeeASL", body.GeeASL);
-			size.Add("g0", G0 * body.GeeASL);
+			size.Add("g0", PhysicsGlobals.GravitationalAcceleration * body.GeeASL);
 			size.Add("sphereOfInfluence", body.sphereOfInfluence);
 			size.Add("hillSphere", body.hillSphere);
 			size.Add("oceanDensity", body.oceanDensity);
