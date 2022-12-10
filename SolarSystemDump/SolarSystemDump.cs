@@ -66,10 +66,15 @@ namespace SolarSystemDump
 		{
 			JsonObject json = new JsonObject();
 			json.Add("version", Versioning.VersionString);
-			json.Add("timeUnits", timeUnitsJson());
 			json.Add("g0", PhysicsGlobals.GravitationalAcceleration);
-			CelestialBody rootBody = null;
 
+			json.Add("timeUnits", timeUnitsJson());
+
+			JsonObject enums = new JsonObject();
+			json.Add("enums", enums);
+			addEnumJson(enums, typeof(ExperimentSituations));
+
+			CelestialBody rootBody = null;
 			JsonObject bodies = bodiesJson(ref rootBody);
 			if (rootBody)
 				json.Add("rootBody", rootBody.name);
@@ -296,6 +301,15 @@ namespace SolarSystemDump
 			for (int i = 0; i < l.Count; i++)
 				ret.Add(l[i]);
 			return ret;
+		}
+
+		public static void addEnumJson(JsonObject json, Type e)
+		{
+			JsonObject v = new JsonObject();
+			json.Add(e.Name, v);
+			foreach (int i in Enum.GetValues(e)) {
+				v.Add(Enum.GetName(e, i), i);
+			}
 		}
 
 		public static void log(string msg)
