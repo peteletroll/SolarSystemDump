@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -23,14 +24,33 @@ namespace SolarSystemDump
 			log("Start() called in " + HighLogic.LoadedScene);
 			dumpJson();
 			enabled = false;
+			setEvents(true);
 		}
 
 		public void OnDestroy()
 		{
 			log("OnDestroy() called in " + HighLogic.LoadedScene);
+			setEvents(false);
 		}
 
-		static bool dumpedJson = false;
+		bool eventState = false;
+
+		private void setEvents(bool newState)
+		{
+			if (newState == eventState)
+				return;
+			eventState = newState;
+			if (newState) {
+				GameEvents.onVesselGoOffRails.Add(offRails);
+			} else {
+				GameEvents.onVesselGoOffRails.Remove(offRails);
+			}
+		}
+
+		void offRails(Vessel v)
+		{
+			dumpJson();
+		}
 
 		public class JsonArray: List<object> { }
 
@@ -38,9 +58,6 @@ namespace SolarSystemDump
 
 		public void dumpJson()
 		{
-			if (dumpedJson)
-				return;
-
 			StreamWriter stream = null;
 
 			try {
@@ -48,12 +65,13 @@ namespace SolarSystemDump
 				string assembly = Assembly.GetExecutingAssembly().Location;
 				string directory = Path.GetDirectoryName(assembly);
 				string file = Path.Combine(directory, nameof(SolarSystemDump) + ".json");
+				if (File.Exists(file))
+					return;
 				log("dumping to " + file);
 				stream = new StreamWriter(file);
 				// log("dumping: " + json);
 				stream.Write(json);
 				stream.Write('\n');
-				dumpedJson = true;
 			} catch (Exception e) {
 				log("can't save: " + e.Message + "\n" + e.StackTrace);
 			} finally {
@@ -182,23 +200,42 @@ namespace SolarSystemDump
 				science.Add("SplashedDataValue", sv.SplashedDataValue);
 				science.Add("RecoveryValue", sv.RecoveryValue);
 			}
+
 			science.Add("biomes", toJson(ResearchAndDevelopment.GetBiomeTags(body, false)));
 			science.Add("miniBiomes", toJson(ResearchAndDevelopment.GetMiniBiomeTags(body)));
+
+			CBAttributeMapSO bmap = body.BiomeMap;
+			if (bmap) {
+				JsonObject biomeColors = new JsonObject();
+				science.Add("biomeColors", biomeColors);
+				for (int i = 0; i < bmap.Attributes.Length; i++) {
+					CBAttributeMapSO.MapAttribute a = bmap.Attributes[i];
+					biomeColors.Add(a.name, toJson(a.mapColor));
+				}
+			}
 
 			JsonArray anomalies = new JsonArray();
 			PQSSurfaceObject[] aa = body.pqsSurfaceObjects;
 			if (aa != null) {
 				for (int i = 0; i < aa.Length; i++) {
 					PQSSurfaceObject a = aa[i];
-					if (a != null && a.name != "Randolith") {
-						JsonObject j = new JsonObject();
-						j.Add("name", a.name);
-						j.Add("objectName", a.SurfaceObjectName);
-						Vector3d p = a.PlanetRelativePosition;
-						j.Add("lat", Mathf.Rad2Deg * Mathf.Asin((float) p.normalized.y));
-						j.Add("lon", Mathf.Rad2Deg * Math.Atan2(p.z, p.x));
-						anomalies.Add(j);
+					if (a == null)
+						continue;
+					Vector3d p = a.PlanetRelativePosition;
+					float lat = Mathf.Rad2Deg * Mathf.Asin((float) p.normalized.y);
+					float lon = Mathf.Rad2Deg * Mathf.Atan2((float) p.z, (float)p.x);
+					if (a.name == "Randolith") {
+						if (Mathf.Abs(lat - -28.80831f) < 1e-3f && Mathf.Abs(lon - -13.44011f) < 1e-3f)
+							continue;
+						log("found " + a.name + " on " + body.name);
 					}
+					JsonObject j = new JsonObject();
+					j.Add("name", a.name);
+					j.Add("objectName", a.SurfaceObjectName);
+					j.Add("lat", lat);
+					j.Add("lon", lon);
+					j.Add("class", a.GetType().ToString());
+					anomalies.Add(j);
 				}
 			}
 			json.Add("anomalies", anomalies);
@@ -301,6 +338,20 @@ namespace SolarSystemDump
 			for (int i = 0; i < l.Count; i++)
 				ret.Add(l[i]);
 			return ret;
+		}
+
+		public static string toJson(Color c)
+		{
+			StringBuilder ret = new StringBuilder("#");
+			for (int i = 0; i < 3; i++) {
+				int n = (int) (255f * c[i]);
+				if (n < 0)
+					n = 0;
+				if (n > 255)
+					n = 255;
+				ret.Append(n.ToString("x2"));
+			}
+			return ret.ToString();
 		}
 
 		public static void addEnumJson(JsonObject json, Type e)
