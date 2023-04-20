@@ -162,6 +162,9 @@ namespace SolarSystemDump
 			json.Add("surface", surface);
 			surface.Add("hasSolidSurface", body.hasSolidSurface);
 			surface.Add("ocean", body.ocean);
+			if (body.ocean && body.pqsController)
+				surface.Add("oceanColor", toJson(body.pqsController.mapOceanColor));
+
 			surface.Add("albedo", body.albedo);
 			surface.Add("emissivity", body.emissivity);
 
@@ -210,7 +213,7 @@ namespace SolarSystemDump
 				science.Add("biomeColors", biomeColors);
 				for (int i = 0; i < bmap.Attributes.Length; i++) {
 					CBAttributeMapSO.MapAttribute a = bmap.Attributes[i];
-					biomeColors.Add(a.name, toJson(a.mapColor));
+					biomeColors.Add(a.name.Replace(" ", ""), toJson(a.mapColor));
 				}
 			}
 
