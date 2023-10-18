@@ -284,7 +284,6 @@ namespace SolarSystemDump
 			json.Add("argumentOfPeriapsisDeg", orbit.argumentOfPeriapsis);
 			json.Add("meanAnomalyAtEpochRad", orbit.meanAnomalyAtEpoch);
 			json.Add("meanAnomalyAtEpochDeg", RAD2DEG * orbit.meanAnomalyAtEpoch);
-			json.Add("normal", toJson(orbit.GetOrbitNormal()));
 			return json;
 		}
 
