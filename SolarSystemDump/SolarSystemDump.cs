@@ -143,105 +143,114 @@ namespace SolarSystemDump
 			info.Add("name", body.name);
 			info.Add("isStar", body.isStar);
 			info.Add("isHomeWorld", body.isHomeWorld);
-			info.Add("timeWarpAltitudeLimits", toJson(body.timeWarpAltitudeLimits));
 			info.Add("orbitingBodies", orbitingBodies(body));
+			info.Add("albedo", body.albedo);
+			info.Add("emissivity", body.emissivity);
 
 			JsonObject size = new JsonObject();
 			json.Add("size", size);
 			size.Add("radius", body.Radius);
-			size.Add("maxHeight", body.pqsController ? body.pqsController.mapMaxHeight : 0.0);
 			size.Add("mass", body.Mass);
 			size.Add("mu", body.gravParameter);
 			size.Add("GeeASL", body.GeeASL);
 			size.Add("g0", PhysicsGlobals.GravitationalAcceleration * body.GeeASL);
 			size.Add("sphereOfInfluence", body.sphereOfInfluence);
 			size.Add("hillSphere", body.hillSphere);
-			size.Add("oceanDensity", body.oceanDensity);
+			size.Add("timeWarpAltitudeLimits", toJson(body.timeWarpAltitudeLimits));
 
-			JsonObject surface = new JsonObject();
-			json.Add("surface", surface);
-			surface.Add("hasSolidSurface", body.hasSolidSurface);
-			surface.Add("ocean", body.ocean);
-			if (body.ocean && body.pqsController)
-				surface.Add("oceanColor", toJson(body.pqsController.mapOceanColor));
+			if (body.hasSolidSurface) {
+				JsonObject surface = new JsonObject();
+				json.Add("surface", surface);
+				surface.Add("maxHeight", body.pqsController ? body.pqsController.mapMaxHeight : 0.0);
+			}
 
-			surface.Add("albedo", body.albedo);
-			surface.Add("emissivity", body.emissivity);
+			if (body.ocean) {
+				JsonObject ocean = new JsonObject();
+				json.Add("ocean", ocean);
+				ocean.Add("density", body.oceanDensity);
+				ocean.Add("height", body.pqsController ? body.pqsController.mapOceanHeight : 0.0);
+				if (body.ocean && body.pqsController)
+					ocean.Add("color", toJson(body.pqsController.mapOceanColor));
+			}
 
 			if (body.atmosphere) {
 				JsonObject atmosphere = new JsonObject();
 				json.Add("atmosphere", atmosphere);
-				atmosphere.Add("atmosphereDepth", body.atmosphereDepth);
-				atmosphere.Add("atmosphereContainsOxygen", body.atmosphereContainsOxygen);
+				atmosphere.Add("depth", body.atmosphereDepth);
+				atmosphere.Add("containsOxygen", body.atmosphereContainsOxygen);
 			}
 
-			JsonObject rotation = new JsonObject();
-			json.Add("rotation", rotation);
-			rotation.Add("axis", toJson(body.RotationAxis));
-			rotation.Add("solarDayLength", body.solarDayLength);
-			rotation.Add("rotationPeriod", body.rotationPeriod);
-			rotation.Add("solarRotationPeriod", body.solarRotationPeriod);
-			rotation.Add("rotates", body.rotates);
-			rotation.Add("tidallyLocked", body.tidallyLocked);
-			rotation.Add("initialRotationRad", DEG2RAD * body.initialRotation);
-			rotation.Add("initialRotationDeg", body.initialRotation);
+			{
+				JsonObject rotation = new JsonObject();
+				json.Add("rotation", rotation);
+				rotation.Add("axis", toJson(body.RotationAxis));
+				rotation.Add("solarDayLength", body.solarDayLength);
+				rotation.Add("rotationPeriod", body.rotationPeriod);
+				rotation.Add("solarRotationPeriod", body.solarRotationPeriod);
+				rotation.Add("rotates", body.rotates);
+				rotation.Add("tidallyLocked", body.tidallyLocked);
+				rotation.Add("initialRotationRad", DEG2RAD * body.initialRotation);
+				rotation.Add("initialRotationDeg", body.initialRotation);
+			}
 
 			json.Add("orbit", orbitJson(body));
 
-			JsonObject science = new JsonObject();
-			json.Add("science", science);
-			if (body.scienceValues != null) {
-				CelestialBodyScienceParams sv = body.scienceValues;
-				science.Add("flyingAltitudeThreshold", sv.flyingAltitudeThreshold);
-				science.Add("spaceAltitudeThreshold", sv.spaceAltitudeThreshold);
-
-				science.Add("InSpaceHighDataValue", sv.InSpaceHighDataValue);
-				science.Add("InSpaceLowDataValue", sv.InSpaceLowDataValue);
-				science.Add("FlyingLowDataValue", sv.FlyingLowDataValue);
-				science.Add("FlyingHighDataValue", sv.FlyingHighDataValue);
-				science.Add("LandedDataValue", sv.LandedDataValue);
-				science.Add("SplashedDataValue", sv.SplashedDataValue);
-				science.Add("RecoveryValue", sv.RecoveryValue);
-			}
-
-			science.Add("biomes", toJson(ResearchAndDevelopment.GetBiomeTags(body, false)));
-			science.Add("miniBiomes", toJson(ResearchAndDevelopment.GetMiniBiomeTags(body)));
-
-			CBAttributeMapSO bmap = body.BiomeMap;
-			if (bmap) {
-				JsonObject biomeColors = new JsonObject();
-				science.Add("biomeColors", biomeColors);
-				for (int i = 0; i < bmap.Attributes.Length; i++) {
-					CBAttributeMapSO.MapAttribute a = bmap.Attributes[i];
-					biomeColors.Add(a.name.Replace(" ", ""), toJson(a.mapColor));
+			{
+				JsonObject science = new JsonObject();
+				json.Add("science", science);
+				if (body.scienceValues != null) {
+					CelestialBodyScienceParams sv = body.scienceValues;
+					science.Add("flyingAltitudeThreshold", sv.flyingAltitudeThreshold);
+					science.Add("spaceAltitudeThreshold", sv.spaceAltitudeThreshold);
+					science.Add("InSpaceHighDataValue", sv.InSpaceHighDataValue);
+					science.Add("InSpaceLowDataValue", sv.InSpaceLowDataValue);
+					science.Add("FlyingLowDataValue", sv.FlyingLowDataValue);
+					science.Add("FlyingHighDataValue", sv.FlyingHighDataValue);
+					science.Add("LandedDataValue", sv.LandedDataValue);
+					science.Add("SplashedDataValue", sv.SplashedDataValue);
+					science.Add("RecoveryValue", sv.RecoveryValue);
 				}
-			}
+				science.Add("biomes", toJson(ResearchAndDevelopment.GetBiomeTags(body, false)));
+				science.Add("miniBiomes", toJson(ResearchAndDevelopment.GetMiniBiomeTags(body)));
 
-			JsonArray anomalies = new JsonArray();
-			PQSSurfaceObject[] aa = body.pqsSurfaceObjects;
-			if (aa != null) {
-				for (int i = 0; i < aa.Length; i++) {
-					PQSSurfaceObject a = aa[i];
-					if (a == null)
-						continue;
-					Vector3d p = a.PlanetRelativePosition;
-					float lat = Mathf.Rad2Deg * Mathf.Asin((float) p.normalized.y);
-					float lon = Mathf.Rad2Deg * Mathf.Atan2((float) p.z, (float)p.x);
-					if (a.name == "Randolith") {
-						if (Mathf.Abs(lat - -28.80831f) < 1e-3f && Mathf.Abs(lon - -13.44011f) < 1e-3f)
-							continue;
-						log("found " + a.name + " on " + body.name);
+				CBAttributeMapSO bmap = body.BiomeMap;
+				if (bmap) {
+					JsonObject biomeColors = new JsonObject();
+					science.Add("biomeColors", biomeColors);
+					for (int i = 0; i < bmap.Attributes.Length; i++) {
+						CBAttributeMapSO.MapAttribute a = bmap.Attributes[i];
+						biomeColors.Add(a.name.Replace(" ", ""), toJson(a.mapColor));
 					}
-					JsonObject j = new JsonObject();
-					j.Add("name", a.name);
-					j.Add("objectName", a.SurfaceObjectName);
-					j.Add("lat", lat);
-					j.Add("lon", lon);
-					j.Add("class", a.GetType().ToString());
-					anomalies.Add(j);
 				}
 			}
-			json.Add("anomalies", anomalies);
+
+			{
+				JsonArray anomalies = new JsonArray();
+				json.Add("anomalies", anomalies);
+				PQSSurfaceObject[] aa = body.pqsSurfaceObjects;
+				if (aa != null) {
+					for (int i = 0; i < aa.Length; i++) {
+						PQSSurfaceObject a = aa[i];
+						if (a == null)
+							continue;
+						Vector3d p = a.PlanetRelativePosition;
+						float lat = Mathf.Rad2Deg * Mathf.Asin((float)p.normalized.y);
+						float lon = Mathf.Rad2Deg * Mathf.Atan2((float)p.z, (float)p.x);
+						if (a.name == "Randolith") {
+							if (Mathf.Abs(lat - -28.80831f) < 1e-3f && Mathf.Abs(lon - -13.44011f) < 1e-3f)
+								continue;
+							log("found " + a.name + " on " + body.name);
+						}
+						JsonObject j = new JsonObject();
+						j.Add("name", a.name);
+						j.Add("objectName", a.SurfaceObjectName);
+						j.Add("lat", lat);
+						j.Add("lon", lon);
+						j.Add("class", a.GetType().ToString());
+						anomalies.Add(j);
+					}
+				}
+			}
 
 			JsonObject roc = rocJson(body.name);
 			if (roc != null)
