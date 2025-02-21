@@ -267,7 +267,7 @@ namespace SolarSystemDump
 								continue;
 							JsonObject j = new JsonObject();
 							j.Add("name", l.name);
-							j.Add("spawnPointName", s[k].name);
+							j.Add("objectName", s[k].name);
 							j.Add("lat", s[k].latitude);
 							j.Add("lon", s[k].longitude);
 							j.Add("class", s[k].GetType().ToString());
