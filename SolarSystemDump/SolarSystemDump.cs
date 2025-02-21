@@ -250,6 +250,31 @@ namespace SolarSystemDump
 						anomalies.Add(j);
 					}
 				}
+
+				List<LaunchSite> ls = PSystemSetup.Instance.LaunchSites;
+				if (ls != null) {
+					for (int i = 0; i < ls.Count; i++) {
+						LaunchSite l = ls[i];
+						if (l == null)
+							continue;
+						if (l.Body != body)
+							continue;
+						LaunchSite.SpawnPoint[] s = l.spawnPoints;
+						if (s == null)
+							continue;
+						for (int k = 0; k < s.Length; k++) {
+							if (s[k] == null)
+								continue;
+							JsonObject j = new JsonObject();
+							j.Add("name", l.name);
+							j.Add("spawnPointName", s[k].name);
+							j.Add("lat", s[k].latitude);
+							j.Add("lon", s[k].longitude);
+							j.Add("class", s[k].GetType().ToString());
+							anomalies.Add(j);
+						}
+					}
+				}
 			}
 
 			JsonObject roc = rocJson(body.name);
