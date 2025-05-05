@@ -131,21 +131,6 @@ namespace SolarSystemDump
 				add(ls.pqsCity, body);
 				add(ls.pqsCity2, body);
 
-				LaunchSite.SpawnPoint[] sp = ls.spawnPoints;
-				if (sp != null) {
-					for (int i = 0; i < sp.Length; i++) {
-						if (sp[i] == null)
-							continue;
-						JsonObject j = new JsonObject();
-						j.Add("name", ls.name);
-						j.Add("objectName", sp[i].name);
-						j.Add("lat", sp[i].latitude);
-						j.Add("lon", sp[i].longitude);
-						j.Add("class", sp[i].GetType().ToString());
-						anomalies.Add(j);
-					}
-				}
-
 				return true;
 			}
 
