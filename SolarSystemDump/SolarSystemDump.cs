@@ -56,6 +56,105 @@ namespace SolarSystemDump
 
 		public class JsonObject: Dictionary<string, object> { }
 
+		public class AnomalyCollector {
+			private List<PQSCity> PQSCities = new List<PQSCity>();
+			private List<PQSCity2> PQSCities2 = new List<PQSCity2>();
+			private List<LaunchSite> launchSites = new List<LaunchSite>();
+
+			private JsonArray anomalies = new JsonArray();
+
+			private bool addPQSJson(PQSSurfaceObject so, CelestialBody body)
+			{
+				if (so == null)
+					return false;
+				Vector3d p = so.PlanetRelativePosition;
+				float lat = Mathf.Rad2Deg * Mathf.Asin((float)p.normalized.y);
+				float lon = Mathf.Rad2Deg * Mathf.Atan2((float)p.z, (float)p.x);
+				if (so.name == "Randolith") {
+					if (Mathf.Abs(lat - -28.80831f) < 1e-3f && Mathf.Abs(lon - -13.44011f) < 1e-3f)
+						return false;
+					log("found " + so.name + " on " + body.name);
+				}
+				JsonObject j = new JsonObject();
+				j.Add("name", so.name);
+				j.Add("objectName", so.SurfaceObjectName);
+				j.Add("lat", lat);
+				j.Add("lon", lon);
+				j.Add("class", so.GetType().ToString());
+				anomalies.Add(j);
+				return true;
+			}
+
+			public bool add(PQSCity pc, CelestialBody body)
+			{
+				if (pc == null)
+					return false;
+				if (PQSCities.Contains(pc))
+					return false;
+				PQSCities.Add(pc);
+				addPQSJson(pc, body);
+				add(pc.launchSite, body);
+				return true;
+			}
+
+			public bool add(PQSCity2 pc, CelestialBody body)
+			{
+				if (pc == null)
+					return false;
+				if (PQSCities2.Contains(pc))
+					return false;
+				PQSCities2.Add(pc);
+				addPQSJson(pc, body);
+				add(pc.launchSite, body);
+				return true;
+			}
+
+			public bool add(PQSSurfaceObject so, CelestialBody body)
+			{
+				if (so == null)
+					return false;
+				if (so is PQSCity)
+					return add(so as PQSCity, body);
+				if (so is PQSCity2)
+					return add(so as PQSCity2, body);
+				return false;
+			}
+
+			public bool add(LaunchSite ls, CelestialBody body)
+			{
+				if (ls == null)
+					return false;
+				if (launchSites.Contains(ls))
+					return false;
+				launchSites.Add(ls);
+
+				add(ls.pqsCity, body);
+				add(ls.pqsCity2, body);
+
+				LaunchSite.SpawnPoint[] sp = ls.spawnPoints;
+				if (sp != null) {
+					for (int i = 0; i < sp.Length; i++) {
+						if (sp[i] == null)
+							continue;
+						JsonObject j = new JsonObject();
+						j.Add("name", ls.name);
+						j.Add("objectName", sp[i].name);
+						j.Add("lat", sp[i].latitude);
+						j.Add("lon", sp[i].longitude);
+						j.Add("class", sp[i].GetType().ToString());
+						anomalies.Add(j);
+					}
+				}
+
+				return true;
+			}
+
+			public JsonArray anomaliesJson()
+			{
+				return anomalies;
+			}
+		}
+
 		public void dumpJson()
 		{
 			StreamWriter stream = null;
@@ -225,56 +324,20 @@ namespace SolarSystemDump
 			}
 
 			{
-				JsonArray anomalies = new JsonArray();
-				json.Add("anomalies", anomalies);
+				AnomalyCollector ac = new AnomalyCollector();
+
 				PQSSurfaceObject[] aa = body.pqsSurfaceObjects;
-				if (aa != null) {
-					for (int i = 0; i < aa.Length; i++) {
-						PQSSurfaceObject a = aa[i];
-						if (a == null)
-							continue;
-						Vector3d p = a.PlanetRelativePosition;
-						float lat = Mathf.Rad2Deg * Mathf.Asin((float)p.normalized.y);
-						float lon = Mathf.Rad2Deg * Mathf.Atan2((float)p.z, (float)p.x);
-						if (a.name == "Randolith") {
-							if (Mathf.Abs(lat - -28.80831f) < 1e-3f && Mathf.Abs(lon - -13.44011f) < 1e-3f)
-								continue;
-							log("found " + a.name + " on " + body.name);
-						}
-						JsonObject j = new JsonObject();
-						j.Add("name", a.name);
-						j.Add("objectName", a.SurfaceObjectName);
-						j.Add("lat", lat);
-						j.Add("lon", lon);
-						j.Add("class", a.GetType().ToString());
-						anomalies.Add(j);
-					}
-				}
+				if (aa != null)
+					for (int i = 0; i < aa.Length; i++)
+						ac.add(aa[i], body);
 
 				List<LaunchSite> ls = PSystemSetup.Instance.LaunchSites;
-				if (ls != null) {
-					for (int i = 0; i < ls.Count; i++) {
-						LaunchSite l = ls[i];
-						if (l == null)
-							continue;
-						if (l.Body != body)
-							continue;
-						LaunchSite.SpawnPoint[] s = l.spawnPoints;
-						if (s == null)
-							continue;
-						for (int k = 0; k < s.Length; k++) {
-							if (s[k] == null)
-								continue;
-							JsonObject j = new JsonObject();
-							j.Add("name", l.name);
-							j.Add("objectName", s[k].name);
-							j.Add("lat", s[k].latitude);
-							j.Add("lon", s[k].longitude);
-							j.Add("class", s[k].GetType().ToString());
-							anomalies.Add(j);
-						}
-					}
-				}
+				if (ls != null)
+					for (int i = 0; i < ls.Count; i++)
+						if (ls[i].Body == body)
+							ac.add(ls[i], body);
+
+				json.Add("anomalies", ac.anomaliesJson());
 			}
 
 			JsonObject roc = rocJson(body.name);
