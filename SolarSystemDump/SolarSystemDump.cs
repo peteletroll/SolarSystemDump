@@ -57,9 +57,7 @@ namespace SolarSystemDump
 		public class JsonObject: Dictionary<string, object> { }
 
 		public class AnomalyCollector {
-			private List<PQSCity> PQSCities = new List<PQSCity>();
-			private List<PQSCity2> PQSCities2 = new List<PQSCity2>();
-			private List<LaunchSite> launchSites = new List<LaunchSite>();
+			private List<PQSSurfaceObject> visited = new List<PQSSurfaceObject>();
 
 			private JsonArray anomalies = new JsonArray();
 
@@ -85,53 +83,37 @@ namespace SolarSystemDump
 				return true;
 			}
 
-			public bool add(PQSCity pc, CelestialBody body)
+			public bool visit(PQSCity pc, CelestialBody body)
 			{
 				if (pc == null)
 					return false;
-				if (PQSCities.Contains(pc))
+				if (visited.Contains(pc))
 					return false;
-				PQSCities.Add(pc);
+				visited.Add(pc);
 				addPQSJson(pc, body);
-				add(pc.launchSite, body);
 				return true;
 			}
 
-			public bool add(PQSCity2 pc, CelestialBody body)
+			public bool visit(PQSCity2 pc, CelestialBody body)
 			{
 				if (pc == null)
 					return false;
-				if (PQSCities2.Contains(pc))
+				if (visited.Contains(pc))
 					return false;
-				PQSCities2.Add(pc);
+				visited.Add(pc);
 				addPQSJson(pc, body);
-				add(pc.launchSite, body);
 				return true;
 			}
 
-			public bool add(PQSSurfaceObject so, CelestialBody body)
+			public bool visit(PQSSurfaceObject so, CelestialBody body)
 			{
 				if (so == null)
 					return false;
 				if (so is PQSCity)
-					return add(so as PQSCity, body);
+					return visit(so as PQSCity, body);
 				if (so is PQSCity2)
-					return add(so as PQSCity2, body);
+					return visit(so as PQSCity2, body);
 				return false;
-			}
-
-			public bool add(LaunchSite ls, CelestialBody body)
-			{
-				if (ls == null)
-					return false;
-				if (launchSites.Contains(ls))
-					return false;
-				launchSites.Add(ls);
-
-				add(ls.pqsCity, body);
-				add(ls.pqsCity2, body);
-
-				return true;
 			}
 
 			public JsonArray anomaliesJson()
@@ -314,13 +296,17 @@ namespace SolarSystemDump
 				PQSSurfaceObject[] aa = body.pqsSurfaceObjects;
 				if (aa != null)
 					for (int i = 0; i < aa.Length; i++)
-						ac.add(aa[i], body);
+						ac.visit(aa[i], body);
 
 				List<LaunchSite> ls = PSystemSetup.Instance.LaunchSites;
-				if (ls != null)
-					for (int i = 0; i < ls.Count; i++)
-						if (ls[i].Body == body)
-							ac.add(ls[i], body);
+				if (ls != null) {
+					for (int i = 0; i < ls.Count; i++) {
+						if (ls[i].Body != body)
+							continue;
+						ac.visit(ls[i].pqsCity, body);
+						ac.visit(ls[i].pqsCity2, body);
+					}
+				}
 
 				json.Add("anomalies", ac.anomaliesJson());
 			}
