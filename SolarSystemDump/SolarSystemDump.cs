@@ -57,7 +57,7 @@ namespace SolarSystemDump
 		public class JsonObject: Dictionary<string, object> { }
 
 		public class AnomalyCollector {
-			private List<PQSSurfaceObject> visited = new List<PQSSurfaceObject>();
+			private HashSet<PQSSurfaceObject> visited = new HashSet<PQSSurfaceObject>();
 
 			private JsonArray anomalies = new JsonArray();
 
