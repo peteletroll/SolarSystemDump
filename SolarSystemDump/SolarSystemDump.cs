@@ -266,15 +266,21 @@ namespace SolarSystemDump
 				json.Add("science", science);
 				if (body.scienceValues != null) {
 					CelestialBodyScienceParams sv = body.scienceValues;
-					science.Add("flyingAltitudeThreshold", sv.flyingAltitudeThreshold);
+					if (body.hasSolidSurface) {
+						science.Add("SrfLandedDataValue", sv.LandedDataValue);
+					}
+					if (body.ocean) {
+						science.Add("SrfSplashedDataValue", sv.SplashedDataValue);
+					}
+					if (body.atmosphere) {
+						science.Add("FlyingAltitudeThreshold", sv.flyingAltitudeThreshold);
+						science.Add("FlyingLowDataValue", sv.FlyingLowDataValue);
+						science.Add("FlyingHighDataValue", sv.FlyingHighDataValue);
+					}
 					science.Add("spaceAltitudeThreshold", sv.spaceAltitudeThreshold);
-					science.Add("InSpaceHighDataValue", sv.InSpaceHighDataValue);
 					science.Add("InSpaceLowDataValue", sv.InSpaceLowDataValue);
-					science.Add("FlyingLowDataValue", sv.FlyingLowDataValue);
-					science.Add("FlyingHighDataValue", sv.FlyingHighDataValue);
-					science.Add("LandedDataValue", sv.LandedDataValue);
-					science.Add("SplashedDataValue", sv.SplashedDataValue);
-					science.Add("RecoveryValue", sv.RecoveryValue);
+					science.Add("InSpaceHighDataValue", sv.InSpaceHighDataValue);
+					science.Add("RecoveryDataValue", sv.RecoveryValue);
 				}
 				science.Add("biomes", toJson(ResearchAndDevelopment.GetBiomeTags(body, false)));
 				science.Add("miniBiomes", toJson(ResearchAndDevelopment.GetMiniBiomeTags(body)));
