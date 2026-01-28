@@ -273,7 +273,7 @@ namespace SolarSystemDump
 						science.Add("SrfSplashedDataValue", sv.SplashedDataValue);
 					}
 					if (body.atmosphere) {
-						science.Add("FlyingAltitudeThreshold", sv.flyingAltitudeThreshold);
+						science.Add("flyingAltitudeThreshold", sv.flyingAltitudeThreshold);
 						science.Add("FlyingLowDataValue", sv.FlyingLowDataValue);
 						science.Add("FlyingHighDataValue", sv.FlyingHighDataValue);
 					}
