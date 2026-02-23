@@ -57,62 +57,64 @@ namespace SolarSystemDump
 		public class JsonObject: Dictionary<string, object> { }
 
 		public class AnomalyCollector {
-			private HashSet<PQSSurfaceObject> visited = new HashSet<PQSSurfaceObject>();
+			private Dictionary<PQSSurfaceObject, JsonObject> so2pqs = new Dictionary<PQSSurfaceObject, JsonObject>();
 
 			private JsonArray anomalies = new JsonArray();
 
-			private bool addPQSJson(PQSSurfaceObject so, CelestialBody body)
+			private bool addPQSJson(String src, PQSSurfaceObject so, CelestialBody body)
 			{
 				if (so == null)
 					return false;
-				Vector3d p = so.PlanetRelativePosition;
-				float lat = Mathf.Rad2Deg * Mathf.Asin((float)p.normalized.y);
-				float lon = Mathf.Rad2Deg * Mathf.Atan2((float)p.z, (float)p.x);
-				if (so.name == "Randolith") {
-					if (Mathf.Abs(lat - -28.80831f) < 1e-3f && Mathf.Abs(lon - -13.44011f) < 1e-3f)
-						return false;
-					log("found " + so.name + " on " + body.name);
+				JsonObject j = null;
+				if (!so2pqs.TryGetValue(so, out j)) {
+					Vector3d p = so.PlanetRelativePosition;
+					float lat = Mathf.Rad2Deg * Mathf.Asin((float)p.normalized.y);
+					float lon = Mathf.Rad2Deg * Mathf.Atan2((float)p.z, (float)p.x);
+					if (so.name == "Randolith") {
+						if (Mathf.Abs(lat - -28.80831f) < 1e-3f && Mathf.Abs(lon - -13.44011f) < 1e-3f)
+							return false;
+						log("found " + so.name + " on " + body.name);
+					}
+					j = new JsonObject();
+					j.Add("name", so.name);
+					j.Add("objectName", so.SurfaceObjectName);
+					j.Add("lat", lat);
+					j.Add("lon", lon);
+					j.Add("class", so.GetType().ToString());
+					j.Add("src", new JsonArray());
+					so2pqs.Add(so, j);
+					anomalies.Add(j);
 				}
-				JsonObject j = new JsonObject();
-				j.Add("name", so.name);
-				j.Add("objectName", so.SurfaceObjectName);
-				j.Add("lat", lat);
-				j.Add("lon", lon);
-				j.Add("class", so.GetType().ToString());
-				anomalies.Add(j);
+				JsonArray src_array = j["src"] as JsonArray;
+				if (src_array != null)
+					src_array.Add(src);
 				return true;
 			}
 
-			public bool visit(PQSCity pc, CelestialBody body)
+			public bool visit(String src, PQSCity pc, CelestialBody body)
 			{
 				if (pc == null)
 					return false;
-				if (visited.Contains(pc))
-					return false;
-				visited.Add(pc);
-				addPQSJson(pc, body);
+				addPQSJson(src, pc, body);
 				return true;
 			}
 
-			public bool visit(PQSCity2 pc, CelestialBody body)
+			public bool visit(String src, PQSCity2 pc, CelestialBody body)
 			{
 				if (pc == null)
 					return false;
-				if (visited.Contains(pc))
-					return false;
-				visited.Add(pc);
-				addPQSJson(pc, body);
+				addPQSJson(src, pc, body);
 				return true;
 			}
 
-			public bool visit(PQSSurfaceObject so, CelestialBody body)
+			public bool visit(String src, PQSSurfaceObject so, CelestialBody body)
 			{
 				if (so == null)
 					return false;
 				if (so is PQSCity)
-					return visit(so as PQSCity, body);
+					return visit(src, so as PQSCity, body);
 				if (so is PQSCity2)
-					return visit(so as PQSCity2, body);
+					return visit(src, so as PQSCity2, body);
 				return false;
 			}
 
@@ -302,15 +304,15 @@ namespace SolarSystemDump
 				PQSSurfaceObject[] aa = body.pqsSurfaceObjects;
 				if (aa != null)
 					for (int i = 0; i < aa.Length; i++)
-						ac.visit(aa[i], body);
+						ac.visit("pqsSurfaceObject", aa[i], body);
 
 				List<LaunchSite> ls = PSystemSetup.Instance.LaunchSites;
 				if (ls != null) {
 					for (int i = 0; i < ls.Count; i++) {
 						if (ls[i].Body != body)
 							continue;
-						ac.visit(ls[i].pqsCity, body);
-						ac.visit(ls[i].pqsCity2, body);
+						ac.visit("launchSite", ls[i].pqsCity, body);
+						ac.visit("launchSite", ls[i].pqsCity2, body);
 					}
 				}
 
