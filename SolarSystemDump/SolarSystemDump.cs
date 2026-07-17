@@ -61,7 +61,7 @@ namespace SolarSystemDump
 
 			private JsonArray anomalies = new JsonArray();
 
-			private bool addPQSJson(String src, PQSSurfaceObject so, CelestialBody body)
+			private bool addPQSJson(bool isLaunchSite, PQSSurfaceObject so, CelestialBody body)
 			{
 				if (so == null)
 					return false;
@@ -81,40 +81,39 @@ namespace SolarSystemDump
 					j.Add("lat", lat);
 					j.Add("lon", lon);
 					j.Add("class", so.GetType().ToString());
-					j.Add("src", new JsonArray());
+					j.Add("isLaunchSite", false);
 					so2pqs.Add(so, j);
 					anomalies.Add(j);
 				}
-				JsonArray src_array = j["src"] as JsonArray;
-				if (src_array != null)
-					src_array.Add(src);
+				if (isLaunchSite)
+					j["isLaunchSite"] = true;
 				return true;
 			}
 
-			public bool visit(String src, PQSCity pc, CelestialBody body)
+			public bool visit(bool isLaunchSite, PQSCity pc, CelestialBody body)
 			{
 				if (pc == null)
 					return false;
-				addPQSJson(src, pc, body);
+				addPQSJson(isLaunchSite, pc, body);
 				return true;
 			}
 
-			public bool visit(String src, PQSCity2 pc, CelestialBody body)
+			public bool visit(bool isLaunchSite, PQSCity2 pc, CelestialBody body)
 			{
 				if (pc == null)
 					return false;
-				addPQSJson(src, pc, body);
+				addPQSJson(isLaunchSite, pc, body);
 				return true;
 			}
 
-			public bool visit(String src, PQSSurfaceObject so, CelestialBody body)
+			public bool visit(bool isLaunchSite, PQSSurfaceObject so, CelestialBody body)
 			{
 				if (so == null)
 					return false;
 				if (so is PQSCity)
-					return visit(src, so as PQSCity, body);
+					return visit(isLaunchSite, so as PQSCity, body);
 				if (so is PQSCity2)
-					return visit(src, so as PQSCity2, body);
+					return visit(isLaunchSite, so as PQSCity2, body);
 				return false;
 			}
 
@@ -304,15 +303,15 @@ namespace SolarSystemDump
 				PQSSurfaceObject[] aa = body.pqsSurfaceObjects;
 				if (aa != null)
 					for (int i = 0; i < aa.Length; i++)
-						ac.visit("pqsSurfaceObject", aa[i], body);
+						ac.visit(false, aa[i], body);
 
 				List<LaunchSite> ls = PSystemSetup.Instance.LaunchSites;
 				if (ls != null) {
 					for (int i = 0; i < ls.Count; i++) {
 						if (ls[i].Body != body)
 							continue;
-						ac.visit("launchSite", ls[i].pqsCity, body);
-						ac.visit("launchSite", ls[i].pqsCity2, body);
+						ac.visit(true, ls[i].pqsCity, body);
+						ac.visit(true, ls[i].pqsCity2, body);
 					}
 				}
 
